@@ -1,4 +1,4 @@
-﻿using AForge.Video;
+using AForge.Video;
 using AForge.Video.DirectShow;
 using System;
 using System.Drawing;
@@ -58,7 +58,7 @@ namespace PostureFeed
                 //Graphics graphics = Graphics.FromImage(img);
                 //System.Windows.Media.ImageSource imageSource = imageSource.
                 //NotAvailable.Source = graphics;
-                NotAvailable.Source = new BitmapImage(new Uri("pack://application:,,,/AssemblyName;component//camera-not-available"));
+                //NotAvailable.Source = new BitmapImage(new Uri("pack://application:PostureFeed/AssemblyName;component//camera-not-available"));
             }
             LocalWebCam = new VideoCaptureDevice(LocalWebCamsCollection[0].MonikerString);
             LocalWebCam.NewFrame += new NewFrameEventHandler(Cam_NewFrame);
@@ -69,6 +69,9 @@ namespace PostureFeed
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Properties.Settings.Default.Save();
+            LocalWebCam.SignalToStop();
+            LocalWebCam.NewFrame -= new NewFrameEventHandler(Cam_NewFrame); // as sugested
+            LocalWebCam = null;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
