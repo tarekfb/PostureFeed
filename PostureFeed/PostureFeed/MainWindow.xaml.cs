@@ -3,9 +3,12 @@ using AForge.Video.DirectShow;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace PostureFeed
@@ -20,7 +23,22 @@ namespace PostureFeed
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new MyWindowViewModel();
             Loaded += MainWindow_Loaded;
+            InitHotKeys();
+        }
+
+        void InitHotKeys()
+        {
+            var newCmd = new RoutedCommand();
+            _ = newCmd.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
+            CommandBindings.Add(new CommandBinding(newCmd, ResetPos));
+        }
+
+        private void ResetPos(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.Top = "200";
+            Properties.Settings.Default.Left = "200";
         }
 
         private void Cam_NewFrame(object sender, NewFrameEventArgs eventArgs)
@@ -78,5 +96,29 @@ namespace PostureFeed
         {
             Topmost = !Topmost;
         }
+
+        public class BooleanToVisibilityConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+                => (bool)value ? Visibility.Visible : Visibility.Collapsed;
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+    }
+    public static class CustomCommands
+    {
+        public static readonly RoutedUICommand ResetPos = new(
+                "Resets window positioning to default",
+                "Reset positioning",
+                typeof(CustomCommands),
+                new InputGestureCollection()
+                {
+                    new KeyGesture(Key.R, ModifierKeys.Control)
+                }
+            );
     }
 }
